@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:todo_list/CustomBar/custom_appbar.dart';
-
-class TodoItem {
-  String title;
-  bool isComplete;
-
-  TodoItem({required this.title, this.isComplete = false});
-}
+import 'package:todo_list/CustomBar/custom_bottomNavigation.dart';
 
 class ItemsLists extends StatefulWidget {
-  final List<TodoItem> items;
+  final List<String> items;
 
   const ItemsLists({super.key, required this.items});
 
@@ -19,9 +13,17 @@ class ItemsLists extends StatefulWidget {
 }
 
 class _ItemsListsState extends State<ItemsLists> {
+  List<bool> _isCompleted = [];
+
+  // ignore: annotate_overrides
+  void initState() {
+    super.initState();
+    _isCompleted = List<bool>.filled(widget.items.length, false);
+  }
+
   void _toggleComplete(int index) {
     setState(() {
-      widget.items[index].isComplete = !widget.items[index].isComplete;
+      _isCompleted[index] = !_isCompleted[index];
     });
   }
 
@@ -29,23 +31,50 @@ class _ItemsListsState extends State<ItemsLists> {
   void _delete(int index) {
     setState(() {
       widget.items.removeAt(index);
-    });
-  }
-
-  // Update an item
-  void _updateItem(int index, String newTitle) {
-    setState(() {
-      widget.items[index].title = newTitle;
+      _isCompleted.removeAt(index);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      appBar: CustomAppBar(),
-      body: Center(
-        child: Text("View Lists"),
-      ),
+    return Scaffold(
+      appBar: const CustomAppBar(),
+      body: widget.items.isEmpty
+          ? const Center(
+              child: Text("No Item added yet!"),
+            )
+          : ListView.builder(
+              itemCount: widget.items.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(
+                    widget.items[index],
+                    style: TextStyle(
+                      decoration: _isCompleted[index]
+                          ? TextDecoration.lineThrough
+                          : TextDecoration.none,
+                    ),
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                          onPressed: () {
+                            _toggleComplete(index);
+                          },
+                          icon: Icon(_isCompleted[index]
+                              ? Icons.check_box
+                              : Icons.check_box_outline_blank)),
+                      IconButton(
+                          onPressed: () {
+                            _delete(index);
+                          },
+                          icon: const Icon(Icons.delete))
+                    ],
+                  ),
+                );
+              }),
+      bottomNavigationBar: const CustomBottomNavigation(currentIndex: 1),
     );
   }
 }

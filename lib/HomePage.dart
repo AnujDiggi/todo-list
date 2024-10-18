@@ -1,10 +1,33 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:todo_list/CustomBar/custom_appbar.dart';
 import 'package:todo_list/Pages/add_items.dart';
 import 'package:todo_list/Pages/items_lists.dart';
 
-class Homepage extends StatelessWidget {
-  const Homepage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final List<String> _items = [];
+
+  void _addItems(String item) {
+    setState(() {
+      _items.add(item);
+      // Navigator.pushReplacement(context,
+      //     MaterialPageRoute(builder: (context) => ItemsLists(items: _items)));
+      final snackBar = SnackBar(
+        content: const Text("Your Item Added"),
+        duration: const Duration(seconds: 3),
+        action: SnackBarAction(label: 'Undo', onPressed: () {}),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,12 +58,13 @@ class Homepage extends StatelessWidget {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const AddItems(additems: '',)));
+                                  builder: (context) => AddItems(
+                                        additemsCallback: _addItems,
+                                      )));
                         },
                         icon: const Icon(
                           Icons.add,
                           size: 30, // Customize icon size
-                      
                         ))
                   ],
                 ),
@@ -66,11 +90,13 @@ class Homepage extends StatelessWidget {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const ItemsLists(items: [],)));
+                                  builder: (context) => ItemsLists(
+                                        items: _items,
+                                      )));
                         },
-                        icon: const Icon(Icons.list,
-                        size: 30, // Customize icon size
-                        
+                        icon: const Icon(
+                          Icons.list,
+                          size: 30, // Customize icon size
                         ))
                   ],
                 ),
